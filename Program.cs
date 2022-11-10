@@ -1,5 +1,6 @@
 ﻿using System;
 using Sprache;
+using Categories;
 
 namespace ALinqyCalculator
 {
@@ -7,6 +8,10 @@ namespace ALinqyCalculator
     {
         static void Main()
         {
+            // Categories.Main.Run();
+
+            Console.Clear();
+
             var line = "";
             while (Prompt(out line))
             {
@@ -14,7 +19,13 @@ namespace ALinqyCalculator
                 {
                     var parsed = ExpressionParser.ParseExpression(line);
                     Console.WriteLine("Parsed as {0}", parsed);
+                    var visitor = new LambdaVisitor(parsed, new List<string>());
+                    Console.WriteLine("Details: ");
+                    visitor.Visit("> ");
+                    Console.WriteLine(visitor.ToString());
+
                     Console.WriteLine("Value is {0}", parsed.Compile()());
+
                 }
                 catch (ParseException ex)
                 {
@@ -28,7 +39,7 @@ namespace ALinqyCalculator
         static bool Prompt(out string value)
         {
             Console.Write("Enter a numeric expression, or 'q' to quit: ");
-            var line = Console.ReadLine() ?? "";
+            var line = Console.ReadLine() ?? "q";
 
             if (line.ToLowerInvariant().Trim() == "q")
             {
