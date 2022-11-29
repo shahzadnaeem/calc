@@ -47,6 +47,8 @@ namespace ALinqyCalculator
                     return new BinaryVisitor((BinaryExpression)node, output);
                 case ExpressionType.Call:
                     return new CallVisitor((MethodCallExpression)node, output);
+                case ExpressionType.MemberAccess:
+                    return new MemberAccessVisitor((MemberExpression)node, output);
                 default:
                     Console.Error.WriteLine($"Node not processed yet: {node.NodeType}");
                     return default(Visitor);
@@ -73,12 +75,12 @@ namespace ALinqyCalculator
             foreach (var argumentExpression in node.Parameters)
             {
                 var argumentVisitor = Visitor.CreateFromExpression(argumentExpression, Output);
-                argumentVisitor.Visit(prefix + "\t");
+                argumentVisitor.Visit(prefix + "  ");
             }
             AddLine($"{prefix}The expression body is:");
             // Visit the body:
             var bodyVisitor = Visitor.CreateFromExpression(node.Body, Output);
-            bodyVisitor.Visit(prefix + "\t");
+            bodyVisitor.Visit(prefix + "  ");
         }
     }
 
@@ -94,6 +96,8 @@ namespace ALinqyCalculator
         public override void Visit(string prefix)
         {
             AddLine($"{prefix}This binary expression is a {NodeType} expression");
+            AddLine($"{prefix}'{node}'");
+
             var left = Visitor.CreateFromExpression(node.Left, Output);
             AddLine($"{prefix}The Left argument is:");
             left.Visit(prefix + "\t");
@@ -130,9 +134,21 @@ namespace ALinqyCalculator
 
         public override void Visit(string prefix)
         {
-            AddLine($"{prefix}This is an {NodeType} expression type");
-            AddLine($"{prefix}The type of the constant value is {node.Type}");
-            AddLine($"{prefix}The value of the constant value is {node.Value}");
+            AddLine($"{prefix}{NodeType} : {node.Type} = {node.Value}");
+        }
+    }
+
+    public class MemberAccessVisitor : Visitor
+    {
+        private readonly MemberExpression node;
+        public MemberAccessVisitor(MemberExpression node, List<string> output) : base(node, output)
+        {
+            this.node = node;
+        }
+
+        public override void Visit(string prefix)
+        {
+            AddLine($"{prefix}{NodeType} : {node.Type} = {node.Member.Name}");
         }
     }
 

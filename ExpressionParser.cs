@@ -75,7 +75,8 @@ namespace ALinqyCalculator
             var it = c.First();
             var theConst = it.GetRawConstantValue() ?? 0;
 
-            return Expression.Constant((double)theConst);
+            // Return the Field to that we can see the Constant being used
+            return Expression.Field(null, it);
         }
 
         static readonly Parser<Expression> Constant =
